@@ -1,7 +1,10 @@
-name: test push
+name: Test Push
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   test:
@@ -14,9 +17,12 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Test push
+      - name: Make a test change
         run: |
-          date >> push-test.log
-          git add push-test.log
-          git commit -m "test: push via PAT" || echo "Nothing to commit"
+          echo "Test run at $(date)" >> test.log
+          git add test.log
+          git commit -m "Test commit" || echo "Nothing to commit"
+
+      - name: Push changes
+        run: |
           git push --force-with-lease "https://${{ secrets.BLOGPIC_PAT }}@github.com/Sumorio/BlogPic.git" HEAD:main
