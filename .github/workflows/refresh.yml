@@ -2,7 +2,7 @@ name: CDN refresh trigger
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天 UTC 零点（北京时间早上8点）
+    - cron: '0 0 * * *'  # 每天 UTC 零点（北京时间早上8点）
   workflow_dispatch:
 
 jobs:
@@ -13,14 +13,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Set Git Identity
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
       - name: Refresh CDN (jsDelivr)
         run: |
           echo "刷新时间：$(date)" >> refresh.log
 
-      - name: Commit refresh log
+      - name: Commit and Push
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
           git add refresh.log
           git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "Nothing to commit"
-          git push "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git" HEAD:main
+          git push --force-with-lease "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git" HEAD:main
