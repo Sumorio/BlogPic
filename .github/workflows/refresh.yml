@@ -26,4 +26,4 @@ jobs:
         run: |
           git add refresh.log
           git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "Nothing to commit"
-          git push --force-with-lease "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git" HEAD:main
+          git push --force-with-lease "https://${{ secrets.BLOGPIC_PAT }}@github.com/Sumorio/BlogPic.git" HEAD:main
