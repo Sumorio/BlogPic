@@ -1,13 +1,15 @@
-name: Test Push
+name: Refresh CDN
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'  # 每天北京时间 11 点自动运行（UTC+8）
 
 permissions:
   contents: write
 
 jobs:
-  test:
+  refresh:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,11 +19,11 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Make a test change
+      - name: Make a refresh log
         run: |
-          echo "Test run at $(date)" >> test.log
-          git add test.log
-          git commit -m "Test commit" || echo "Nothing to commit"
+          echo "Refresh run at $(date)" >> refresh.log
+          git add refresh.log
+          git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "Nothing to commit"
 
       - name: Pull latest changes
         run: |
