@@ -21,7 +21,4 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/Sumorio/BlogPic.git
-          git add README.md
-          git commit -m "chore: trigger jsDelivr CDN refresh" || echo "No changes"
-          git push origin main
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/Sumorio/
