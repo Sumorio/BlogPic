@@ -1,4 +1,4 @@
-name: refresh
+name: Refresh CDN
 
 on:
   push:
@@ -8,25 +8,15 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    env:
-      TZ: Asia/Shanghai
-      TOKEN: ${{ secrets.GH_TOKEN }}
-
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false
 
-      - name: Set Git Identity
+      - name: Run something
         run: |
-          git config --global user.name "Sumorio"
-          git config --global user.email "ambor0225@gmail.com"
-
-      - name: Git Remote Setup
-        run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Sumorio/BlogPic.git
-
-      - name: CDN Refresh Trigger
-        run: |
-          git commit --allow-empty -m "CDN refresh trigger"
-          git push origin main
+          # 处理图片或刷新缓存
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "refresh CDN cache [skip ci]"
+          git push
