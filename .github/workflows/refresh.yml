@@ -1,29 +1,30 @@
 name: Refresh CDN
 
 on:
-  schedule:
-    - cron: '0 8 * * *' # 每天早上 8 点刷新
   workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'  # 每天早上 8 点触发
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout full repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ⚠️ 一定不能省略！防止 push 报错
 
-      - name: Update timestamp
+      - name: Setup Git user
         run: |
-          echo "Refresh timestamp: $(date -u)" > refresh.log
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-      - name: Commit & Push changes
+      - name: Touch refresh.log
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          if [ -n "$(git status --porcelain)" ]; then
-            git add .
-            git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          echo "Refresh timestamp: $(date -u)" >> refresh.log
+
+      - name: Commit and Push
+        run: |
+          git add refresh.log
+          git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "No changes to commit"
+          git push "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git" HEAD:main
