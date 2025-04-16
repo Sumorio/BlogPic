@@ -1,0 +1,22 @@
+name: Refresh CDN
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # 每天北京时间 16:00 运行（可改）
+  workflow_dispatch:    # 可手动触发
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Touch README to trigger refresh
+        run: |
+          echo "Refresh timestamp: $(date -u)" > README.md
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add README.md
+          git commit -m "chore: trigger jsDelivr CDN refresh"
+          git push
