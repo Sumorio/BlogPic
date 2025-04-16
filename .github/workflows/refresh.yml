@@ -1,29 +1,22 @@
-name: CDN refresh trigger
+name: test push
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 零点（北京时间早上8点）
   workflow_dispatch:
 
 jobs:
-  refresh:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set Git Identity
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Refresh CDN (jsDelivr)
+      - name: Test push
         run: |
-          echo "刷新时间：$(date)" >> refresh.log
-
-      - name: Commit and Push
-        run: |
-          git add refresh.log
-          git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "Nothing to commit"
+          date >> push-test.log
+          git add push-test.log
+          git commit -m "test: push via PAT" || echo "Nothing to commit"
           git push --force-with-lease "https://${{ secrets.BLOGPIC_PAT }}@github.com/Sumorio/BlogPic.git" HEAD:main
