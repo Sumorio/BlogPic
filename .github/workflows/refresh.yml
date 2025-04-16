@@ -1,9 +1,9 @@
-name: Refresh CDN
+name: Refresh jsDelivr
 
 on:
-  schedule:
-    - cron: '0 8 * * *' # 每天早上 8 点刷新
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   refresh:
@@ -12,11 +12,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Commit README to refresh CDN
+      - name: Update README timestamp
+        run: echo "Refresh timestamp: $(date -u)" > README.md
+
+      - name: Push to main
+        env:
+          TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "Refresh timestamp: $(date -u)" > README.md
-          git config --global user.email "actions@github.com"
-          git config --global user.name "github-actions"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/Sumorio/BlogPic.git
           git add README.md
-          git commit -m "chore: trigger jsDelivr CDN refresh"
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git HEAD:main
+          git commit -m "chore: trigger jsDelivr CDN refresh" || echo "No changes"
+          git push origin main
