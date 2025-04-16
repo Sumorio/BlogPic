@@ -1,22 +1,29 @@
 name: Refresh CDN
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 8 * * *' # 每天早上 8 点刷新
+  workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Run something
+      - name: Update timestamp
         run: |
-          # 处理图片或刷新缓存
+          echo "Refresh timestamp: $(date -u)" > refresh.log
+
+      - name: Commit & Push changes
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add .
-          git commit -m "refresh CDN cache [skip ci]"
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
