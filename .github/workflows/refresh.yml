@@ -1,32 +1,26 @@
-name: refresh
+name: CDN refresh trigger
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 0 * * *' # 每天 UTC 零点（北京时间早上8点）
+  workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    env:
-      TZ: Asia/Shanghai
-      TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false
 
-      - name: Set Git Identity
+      - name: Refresh CDN (jsDelivr)
         run: |
-          git config --global user.name "Sumorio"
-          git config --global user.email "ambor0225@gmail.com"
+          echo "刷新时间：$(date)" >> refresh.log
 
-      - name: Git Remote Setup
-        run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Sumorio/BlogPic.git
-
-      - name: CDN Refresh Trigger
+      - name: Commit refresh log
         run: |
-          git commit --allow-empty -m "CDN refresh trigger"
-          git push origin main
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add refresh.log
+          git commit -m "chore: trigger jsDelivr CDN refresh [skip ci]" || echo "Nothing to commit"
+          git push "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Sumorio/BlogPic.git" HEAD:main
